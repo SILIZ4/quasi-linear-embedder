@@ -4,6 +4,7 @@
 #include <sstream>
 #include <cmath>
 #include <iomanip>
+#define GLOG_USE_GLOG_EXPORT
 #include <glog/logging.h>
 #include <type_traits>
 #include <limits>
@@ -109,7 +110,7 @@ double SpringEmbedder::score(const vector<vector<double>>& weights) {
 
   vector<double> abs_forces(m_n);
   double score = 0.0;
-  
+
   computeAbsForces1D(abs_forces, weights, min_weight, max_weight);
 
   for (int v = 0; v < m_n; ++v) {
@@ -335,12 +336,12 @@ void SpringEmbedder::applyForces1D(const vector<double>& forces, double max_step
 
   for (int v = 0; v < m_n; ++v) {
     double phi = m_G.pts[v].phi;
-    
+
     phi += factor * forces[v];
 
     // phi should be in [0, 2pi]
     phi -= std::floor(phi / (2 * M_PI)) * 2 * M_PI;
-    
+
     // set position
     // if (v == 3)
     m_G.pts[v].phi = phi;

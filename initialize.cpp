@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <fstream>
 
 #include "graph.hpp"
 #include "hyperbolic.hpp"
@@ -40,11 +41,7 @@ DEFINE_string(input, "", "Graph to be embedded. Expects a file with an edge "
               "design, does not support nodes with no neighbors. Note that "
               "only the giant component of the given graph is embedded.");
 
-DEFINE_string(generate, "", "If a non-empty string is given, will generate a "
-              "hyperbolic random graph for embedding instead of reading a "
-              "graph from an input file. For reference, the generated graph "
-              "is stored in name-links.txt, and the locations are stored in "
-              "name-coords.txt, where name is the supplied string.");
+DEFINE_string(output, "init.txt", "Initialization output file name.");
 
 DEFINE_int32(n, 1000, "Number of vertices for hyperbolic random graph");
 DEFINE_double(C, -1, "Adjusts the average degree of the generated hyperbolic "
@@ -73,23 +70,21 @@ int main(int argc, char* argv[]) {
 
   cout << "Seed: " << FLAGS_seed << endl;
 
-  Graph G(0);
+  std::ofstream output_stream(FLAGS_output);
+  if (!output_stream.is_open()) {
+    cout << "Could not open output file \"" << FLAGS_output << "\"." << endl;
+    exit(0);
+  }
 
-  if (!FLAGS_generate.empty()) {
-    double R = 2 * log(FLAGS_n) + FLAGS_C;
-    HyperbolicLinear H = HyperbolicLinear::linearSampling(FLAGS_n, R, FLAGS_alpha, FLAGS_T);
-    H.printToFile(FLAGS_generate.c_str());
-    G = H.simpleSubgraph();
-  } else if (!FLAGS_input.empty()) {
-    unordered_map<std::string, int> label_to_node;
-    G = Graph::fromFile(FLAGS_input, &label_to_node);
-    G = G.simpleSubgraph();
-  } else {
-    cout << "Please either specify an input graph using --input or use "
-         << "--generate to generate a random hyperbolic graph. Call with "
+  if (FLAGS_input.empty()) {
+    cout << "Please specify an input graph using --input. Call with "
          << "--help for more information." << endl;
     exit(0);
   }
+  Graph G(0);
+  unordered_map<std::string, int> label_to_node;
+  G = Graph::fromFile(FLAGS_input, &label_to_node);
+  G = G.simpleSubgraph();
 
   // Compute giant and sort by degrees
   G = G.giantSubgraph();
@@ -113,22 +108,16 @@ int main(int argc, char* argv[]) {
     HE.pts[i].r = est_r[i];
     HE.pts[i].phi = M_PI * 1.5;
   }
+  HE.initializeEmbedding();
 
-  if (!FLAGS_embed.empty() && FLAGS_springembed.empty()) {
-    cout << "Embedding graph in the hyperbolic plane..." << endl;
-    HE.hyperbolicEmbedding();
-    HE.printToFile(FLAGS_embed.c_str());
-    cout << "Embedded Log-likelihood: " << HE.computeEnergy(0) << endl;
-  }
-  if (!FLAGS_springembed.empty()) {
-    cout << "Embedding graph in the hyperbolic plane using a spring embedder..."
-         << endl;
-    SpringEmbedder SE(HE);
-    SE.run(1000, 1, 0, true);
-    HE.printToFile(FLAGS_springembed.c_str());
+  output_stream << "# R=" << HE.R << "\n"
+                << "# T=" << HE.T << "\n"
+                << "# alpha=" << HE.alpha << "\n"
+                << "# columns: radius angle\n";
+  FOR(i,HE.n) {
+    output_stream << HE.pts[i].r << " " << HE.pts[i].phi << "\n";
   }
 
-  cout << "End." << endl;
   return 0;
 }
 

@@ -1,6 +1,8 @@
 #include <cmath>
 #include <cstdio>
 #include <fstream>
+
+#define GLOG_USE_GLOG_EXPORT
 #include <glog/logging.h>
 #include <gsl/gsl_sf_gamma.h>
 #include <gsl/gsl_monte_plain.h>
@@ -247,6 +249,13 @@ void HyperbolicLinear::hyperbolicEmbedding() {
   edges = orig_edges;
 }
 
+void HyperbolicLinear::initializeEmbedding() {
+  CHECK_EQ(sizeOfGiant(giant(components())),n)
+      << "Can only embed connected graphs.";
+  constructWeightLayers();
+  prepareEmbedding();
+}
+
 void HyperbolicLinear::estimateBestAngle(int node, int min_layer,
                                          const vector<bool>& active) {
 
@@ -481,11 +490,11 @@ void HyperbolicLinear::findGoodEmbedding(int max_layer, int min_layer,
         pts[i].phi = old_phi;
         geometric_ds.move(i, HYPT(pts[i].r, best_phi));
       }
-      
+
       // compute total energy
       double energy = computeEnergy(layer);
       improvement = (lastEnergy-energy)/lastEnergy;
-      
+
       lastEnergy = energy;
       LOG(INFO) << "Layer " << layer << " has log-likelihood " << lastEnergy
       << " (Improvement by " << improvement << ")";

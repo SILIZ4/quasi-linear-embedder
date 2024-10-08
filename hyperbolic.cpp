@@ -4,10 +4,12 @@
 #include <cstdio>
 #include <iostream>
 #include <fstream>
+#define GLOG_USE_GLOG_EXPORT
 #include <glog/logging.h>
 #include <set>
 #include <queue>
 #include <algorithm>
+#include <limits>
 #include <unordered_map>
 
 #include "graph.hpp"

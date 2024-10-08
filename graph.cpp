@@ -7,6 +7,8 @@
 #include <map>
 #include <queue>
 #include <stack>
+
+#define GLOG_USE_GLOG_EXPORT
 #include <glog/logging.h>
 #include <cstdio>
 #include <cmath>
@@ -137,7 +139,7 @@ vector<int> Graph::degHisto() const {
 vector<int> Graph::components() const {
   vector<int> comp(n,-1);
   int T = 0;
-  FOR(i,n) 
+  FOR(i,n)
     if (comp[i] == -1) {
       stack<int> S;
       S.push(i);
@@ -149,7 +151,7 @@ vector<int> Graph::components() const {
             S.push(*it);
         }
       }
-      
+
       T++;
     }
   return comp;
@@ -159,7 +161,7 @@ vector<bool> Graph::giant(vector<int> components) const {
   vector<int> size (n,0);
   FOR(i,n) size[components[i]]++;
   int maxcomp = 0;
-  FOR(i,n) 
+  FOR(i,n)
     if (size[i] > size[maxcomp])
       maxcomp = i;
   vector<bool> giant (n);
@@ -171,7 +173,7 @@ vector<bool> Graph::giant(vector<int> components) const {
 vector<int> Graph::smallComponentHisto(vector<int> components, vector<bool> giant) {
   vector<int> size (n,0);
   int maxsize = 0;
-  FOR(i,n) 
+  FOR(i,n)
     if (!giant[i]) {
       size[components[i]]++;
       maxsize = max(maxsize, size[components[i]]);

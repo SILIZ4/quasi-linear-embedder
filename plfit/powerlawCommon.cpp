@@ -1,5 +1,6 @@
 #include "powerlawCommon.h"
 
+#include <limits>
 #include <gsl/gsl_statistics_double.h>
 
 #include "../random.hpp"
@@ -532,27 +533,27 @@ namespace plfit
       ;
       ValueType average_L = std::accumulate( all_L.begin(), all_L.end(), static_cast< ValueType > ( 0 ) ) / all_L.size();
       ;
-      
+
       ValueType sd_alpha = GetSD( all_alpha );
       ValueType sd_xmin = GetSD( all_xmin );
       ValueType sd_L = GetSD( all_L );
-      
+
       results.push_back( average_alpha );
       results.push_back( average_xmin );
       results.push_back( average_L );
-      
+
       results.push_back( sd_alpha );
       results.push_back( sd_xmin );
       results.push_back( sd_L );
     }
   }
-  
+
   /**
    * Maximum likelihood estimation.
    *
    * If input is not correct an empty VectorType will be returned!
    */
-  
+
   void Powerlaw::Mle( const VectorType& inputs, bool nosmall, bool finiteSize, ValueType startValue, ValueType increment,
                      ValueType endValue, bool discrete, VectorType& results )
   {
@@ -561,15 +562,15 @@ namespace plfit
     {
       return;
     }
-    
+
     if ( discrete )
     {
       if ( startValue > 1.0 )
         MleInt( inputs, nosmall, finiteSize, startValue, increment, endValue, results );
-      
+
       else
         std::cerr << "*** ERROR ***: start-value should be higher than 1.0!" << std::endl;
-      
+
     } else
       MleReal( inputs, nosmall, finiteSize, results );
   }

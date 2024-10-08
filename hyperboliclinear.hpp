@@ -21,6 +21,8 @@ class HyperbolicLinear : public Hyperbolic {
 
   // Embeds the graph in the hyperbolic plane.
   void hyperbolicEmbedding();
+  // Perform only initialization
+  void initializeEmbedding();
 
   // See above. Only optimizes between the given layers (inclusively). Useful
   // for random restarts. If close is set, the nodes in max_layer will initially

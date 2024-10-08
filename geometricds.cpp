@@ -6,6 +6,7 @@
 //
 //
 
+#define GLOG_USE_GLOG_EXPORT
 #include <glog/logging.h>
 
 #include "geometricds.hpp"
@@ -357,11 +358,11 @@ template<typename T>
 void GeometricDS<T>::move(int v, HYPT new_pos) {
   // remove v from the data structure
   // m_tree_points[getLayer(v)].eraseNode(v, m_G.pts[v].phi);
-  
+
   // move v to the new position
   m_G->pts[v].r = new_pos.r;
   m_G->pts[v].phi = new_pos.phi;
-  
+
   // reinsert v
   // m_tree_points[getLayer(v)].addNode(v, new_pos.phi);
 }
